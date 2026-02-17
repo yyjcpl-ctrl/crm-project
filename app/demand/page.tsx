@@ -173,20 +173,17 @@ Locality: ${d.locality || "-"}`;
           Client Demand Manager
         </h1>
 
-        {/* ✅ ADD DEMAND FORM — ADDED (nothing removed) */}
+        {/* ➕ ADD DEMAND FORM */}
         <div className="border rounded-2xl p-5 mb-8 bg-white/80 backdrop-blur shadow-xl">
           <h2 className="font-bold text-lg mb-4">Add Client Demand</h2>
 
           <div className="grid md:grid-cols-4 gap-3">
             <input className={input} placeholder="Client Name"
               value={form.name} onChange={(e) => setVal("name", e.target.value)} />
-
             <input className={input} placeholder="Mobile"
               value={form.mobile} onChange={(e) => setVal("mobile", e.target.value)} />
-
             <input className={input} placeholder="Reference By"
               value={form.reference} onChange={(e) => setVal("reference", e.target.value)} />
-
             <input list="propertyForList" className={input}
               placeholder="Property For"
               value={form.propertyFor}
@@ -196,34 +193,24 @@ Locality: ${d.locality || "-"}`;
               <option value="Rent" />
               <option value="Lease" />
             </datalist>
-
             <input className={input} placeholder="Type"
               value={form.type} onChange={(e) => setVal("type", e.target.value)} />
-
             <input className={input} placeholder="New / Resale"
               value={form.condition} onChange={(e) => setVal("condition", e.target.value)} />
-
             <input className={input} placeholder="Bedroom"
               value={form.bedroom} onChange={(e) => setVal("bedroom", e.target.value)} />
-
             <input className={input} placeholder="Bath"
               value={form.bath} onChange={(e) => setVal("bath", e.target.value)} />
-
             <input className={input} placeholder="Facing"
               value={form.facing} onChange={(e) => setVal("facing", e.target.value)} />
-
             <input className={input} placeholder="Size"
               value={form.size} onChange={(e) => setVal("size", e.target.value)} />
-
             <input className={input} placeholder="Min Price"
               value={form.minPrice} onChange={(e) => setVal("minPrice", e.target.value)} />
-
             <input className={input} placeholder="Max Price"
               value={form.maxPrice} onChange={(e) => setVal("maxPrice", e.target.value)} />
-
             <input className={input} placeholder="Locality"
               value={form.locality} onChange={(e) => setVal("locality", e.target.value)} />
-
             <input type="date" className={input}
               value={form.followup} onChange={(e) => setVal("followup", e.target.value)} />
           </div>
@@ -236,9 +223,31 @@ Locality: ${d.locality || "-"}`;
           </button>
         </div>
 
-        {/* 📋 DEMAND LIST — YOUR ORIGINAL BELOW (unchanged) */}
+        {/* 📋 DEMAND LIST */}
+        <div className="space-y-4">
+          {demands.map((d) => {
+            const matches = getMatches(d);
+            return (
+              <div key={d.id} className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border">
+                <div className="flex justify-between flex-wrap gap-2">
+                  <h3 className="font-bold">{d.name} ({d.mobile})</h3>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-
-
-
-
+      <style jsx global>{`
+        @keyframes gradientMove {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradientMove {
+          animation: gradientMove 12s ease infinite;
+        }
+      `}</style>
+    </div>
+  );
+}
