@@ -117,6 +117,9 @@ export default function DemandPage() {
     const text = `Client Requirement:
 Name: ${d.name}
 Mobile: ${d.mobile}
+Property For: ${d.propertyFor || "-"}
+Type: ${d.type || "-"}
+Bedroom: ${d.bedroom || "-"}
 Budget: ₹${d.minPrice || 0} - ₹${d.maxPrice || 0}
 Locality: ${d.locality || "-"}`;
 
@@ -157,32 +160,42 @@ Locality: ${d.locality || "-"}`;
           Client Demand Manager
         </h1>
 
-        {/* FORM */}
+        {/* ✅ FULL FORM RESTORED */}
         <div className="relative z-20 w-full border rounded-2xl p-5 mb-8 bg-white/90 backdrop-blur shadow-xl">
           <h2 className="font-bold text-lg mb-4">Add Client Demand</h2>
 
           <div className="grid md:grid-cols-4 gap-3">
-            <input className={input} placeholder="Client Name"
-              value={form.name} onChange={(e) => setVal("name", e.target.value)} />
-            <input className={input} placeholder="Mobile"
-              value={form.mobile} onChange={(e) => setVal("mobile", e.target.value)} />
-            <input className={input} placeholder="Locality"
-              value={form.locality} onChange={(e) => setVal("locality", e.target.value)} />
-            <input className={input} placeholder="Min Price"
-              value={form.minPrice} onChange={(e) => setVal("minPrice", e.target.value)} />
-            <input className={input} placeholder="Max Price"
-              value={form.maxPrice} onChange={(e) => setVal("maxPrice", e.target.value)} />
+            <input className={input} placeholder="Client Name" value={form.name} onChange={(e)=>setVal("name",e.target.value)} />
+            <input className={input} placeholder="Mobile" value={form.mobile} onChange={(e)=>setVal("mobile",e.target.value)} />
+            <input className={input} placeholder="Reference By" value={form.reference} onChange={(e)=>setVal("reference",e.target.value)} />
+
+            <input list="propertyForList" className={input} placeholder="Property For"
+              value={form.propertyFor} onChange={(e)=>setVal("propertyFor",e.target.value)} />
+            <datalist id="propertyForList">
+              <option value="Buy" />
+              <option value="Rent" />
+              <option value="Lease" />
+            </datalist>
+
+            <input className={input} placeholder="Type" value={form.type} onChange={(e)=>setVal("type",e.target.value)} />
+            <input className={input} placeholder="New / Resale" value={form.condition} onChange={(e)=>setVal("condition",e.target.value)} />
+            <input className={input} placeholder="Bedroom" value={form.bedroom} onChange={(e)=>setVal("bedroom",e.target.value)} />
+            <input className={input} placeholder="Bath" value={form.bath} onChange={(e)=>setVal("bath",e.target.value)} />
+            <input className={input} placeholder="Facing" value={form.facing} onChange={(e)=>setVal("facing",e.target.value)} />
+            <input className={input} placeholder="Size" value={form.size} onChange={(e)=>setVal("size",e.target.value)} />
+            <input className={input} placeholder="Min Price" value={form.minPrice} onChange={(e)=>setVal("minPrice",e.target.value)} />
+            <input className={input} placeholder="Max Price" value={form.maxPrice} onChange={(e)=>setVal("maxPrice",e.target.value)} />
+            <input className={input} placeholder="Locality" value={form.locality} onChange={(e)=>setVal("locality",e.target.value)} />
+            <input type="date" className={input} value={form.followup} onChange={(e)=>setVal("followup",e.target.value)} />
           </div>
 
-          <button
-            onClick={addDemand}
-            className="mt-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-2 rounded-xl font-semibold shadow-lg"
-          >
+          <button onClick={addDemand}
+            className="mt-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-2 rounded-xl font-semibold shadow-lg">
             Save Demand
           </button>
         </div>
 
-        {/* 🔥 DEMAND LIST */}
+        {/* 🔥 DEMAND LIST FULL DETAILS */}
         <div className="space-y-4">
           {demands.map((d) => {
             const matches = getMatches(d);
@@ -190,77 +203,65 @@ Locality: ${d.locality || "-"}`;
             return (
               <div key={d.id} className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border">
                 <div className="flex justify-between flex-wrap gap-2">
-                  <h3 className="font-bold">
-                    {d.name} ({d.mobile})
-                  </h3>
+                  <h3 className="font-bold">{d.name} ({d.mobile})</h3>
 
                   <div className="flex gap-2 flex-wrap">
-                    <button
-                      onClick={() =>
-                        setOpenDetail(openDetail === d.id ? null : d.id)
-                      }
-                      className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs"
-                    >
+                    <button onClick={()=>setOpenDetail(openDetail===d.id?null:d.id)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs">
                       See Details
                     </button>
 
-                    <button
-                      onClick={() => shareWhatsApp(d)}
-                      className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs"
-                    >
+                    <button onClick={()=>shareWhatsApp(d)}
+                      className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs">
                       WhatsApp
                     </button>
 
-                    {d.status !== "Closed" ? (
-                      <button
-                        onClick={() => closeDemand(d.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs"
-                      >
+                    {d.status!=="Closed" ? (
+                      <button onClick={()=>closeDemand(d.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs">
                         Close
                       </button>
-                    ) : (
-                      <button
-                        onClick={() => deleteDemand(d.id)}
-                        className="bg-gray-800 text-white px-3 py-1 rounded-lg text-xs"
-                      >
+                    ):(
+                      <button onClick={()=>deleteDemand(d.id)}
+                        className="bg-gray-800 text-white px-3 py-1 rounded-lg text-xs">
                         Delete
                       </button>
                     )}
                   </div>
                 </div>
 
-                {/* DETAILS */}
-                {openDetail === d.id && (
-                  <div className="mt-3 text-sm bg-gray-50 p-3 rounded-xl">
-                    <button
-                      onClick={() =>
-                        setOpenMatch(openMatch === d.id ? null : d.id)
-                      }
-                      className="text-purple-700 font-semibold underline"
-                    >
-                      Matching Properties ({matches.length})
-                    </button>
+                {openDetail===d.id && (
+                  <div className="mt-3 grid md:grid-cols-2 gap-2 text-sm bg-gray-50 p-3 rounded-xl">
+                    <div><b>Client Name:</b> {d.name||"-"}</div>
+                    <div><b>Mobile:</b> {d.mobile||"-"}</div>
+                    <div><b>Reference:</b> {d.reference||"-"}</div>
+                    <div><b>Property For:</b> {d.propertyFor||"-"}</div>
+                    <div><b>Type:</b> {d.type||"-"}</div>
+                    <div><b>Condition:</b> {d.condition||"-"}</div>
+                    <div><b>Bedroom:</b> {d.bedroom||"-"}</div>
+                    <div><b>Bath:</b> {d.bath||"-"}</div>
+                    <div><b>Facing:</b> {d.facing||"-"}</div>
+                    <div><b>Size:</b> {d.size||"-"}</div>
+                    <div><b>Budget:</b> ₹{d.minPrice||0} - ₹{d.maxPrice||0}</div>
+                    <div><b>Locality:</b> {d.locality||"-"}</div>
 
-                    {/* MATCH LIST */}
-                    {openMatch === d.id && (
-                      <div className="mt-3 space-y-2">
-                        {matches.length === 0 && (
-                          <div className="text-gray-500">
-                            No matching property
-                          </div>
-                        )}
+                    <div className="md:col-span-2">
+                      <button
+                        onClick={()=>setOpenMatch(openMatch===d.id?null:d.id)}
+                        className="text-purple-700 font-semibold underline">
+                        Matching Properties ({matches.length})
+                      </button>
+                    </div>
 
-                        {matches.map((m: any) => (
+                    {openMatch===d.id && (
+                      <div className="md:col-span-2 space-y-2">
+                        {matches.map((m:any)=>(
                           <div key={m.id} className="border rounded-lg p-2 bg-white">
                             <div><b>Type:</b> {m.type}</div>
                             <div><b>Price:</b> ₹{m.price}</div>
-                            <div><b>Area:</b> {m.size}</div>
                             <div><b>Location:</b> {m.address}</div>
-
-                            <Link
-                              href={`/property/${m.id}`}
-                              className="inline-block mt-1 text-blue-600 underline text-xs"
-                            >
+                            <Link href={`/property/${m.id}`}
+                              className="text-blue-600 underline text-xs">
                               Open Property →
                             </Link>
                           </div>
@@ -274,18 +275,8 @@ Locality: ${d.locality || "-"}`;
           })}
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes gradientMove {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradientMove {
-          animation: gradientMove 12s ease infinite;
-        }
-      `}</style>
     </div>
   );
 }
+
 
