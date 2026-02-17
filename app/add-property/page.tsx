@@ -38,7 +38,7 @@ export default function AddPropertyPage() {
   const input =
     "w-full border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-3 rounded-xl outline-none transition bg-white";
 
-  // ✅ AUTO DATE
+  // ✅ AUTO DATE (user change allowed)
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     setForm((p: any) => ({ ...p, date: p.date || today }));
@@ -50,9 +50,10 @@ export default function AddPropertyPage() {
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  // 🔥 multi file preview
+  // ✅ MULTI FILE PREVIEW (FIXED)
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
+
     const arr = Array.from(files);
     setForm((p: any) => ({ ...p, files: arr }));
 
@@ -102,17 +103,6 @@ export default function AddPropertyPage() {
         body: JSON.stringify(payload),
       });
 
-      const existing = localStorage.getItem("properties");
-      const properties = existing ? JSON.parse(existing) : [];
-
-      properties.unshift({
-        id: Date.now(),
-        price: form.maxPrice || form.minPrice || "",
-        ...form,
-      });
-
-      localStorage.setItem("properties", JSON.stringify(properties));
-
       alert("✅ Property Saved Successfully!");
       setForm(initialForm);
       setPreview([]);
@@ -136,7 +126,7 @@ export default function AddPropertyPage() {
 
         <div className="bg-white rounded-3xl p-6 shadow-2xl">
           <h1 className="text-3xl font-bold mb-6 text-gray-800">
-            ➕ Add Property (Pro)
+            ➕ Add Property
           </h1>
 
           {/* ROW 1 */}
@@ -180,146 +170,16 @@ export default function AddPropertyPage() {
           {/* ROW 2 */}
           <div className="grid md:grid-cols-2 gap-4 mt-4">
             <input
-              list="conditionList"
               placeholder="Condition"
               className={input}
               value={form.condition}
               onChange={(e) => setVal("condition", e.target.value)}
             />
-            <datalist id="conditionList">
-              <option value="New" />
-              <option value="Resale" />
-            </datalist>
-
             <input
-              list="bedroomList"
               placeholder="Bedroom"
               className={input}
               value={form.bedroom}
               onChange={(e) => setVal("bedroom", e.target.value)}
-            />
-            <datalist id="bedroomList">
-              <option value="1" />
-              <option value="2" />
-              <option value="3" />
-              <option value="4" />
-            </datalist>
-
-            <input
-              list="bathList"
-              placeholder="Bath"
-              className={input}
-              value={form.bath}
-              onChange={(e) => setVal("bath", e.target.value)}
-            />
-            <datalist id="bathList">
-              <option value="1" />
-              <option value="2" />
-              <option value="3" />
-            </datalist>
-          </div>
-
-          {/* ROW 3 */}
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <input
-              placeholder="Size (sqft)"
-              className={input}
-              value={form.size}
-              onChange={(e) => setVal("size", e.target.value)}
-            />
-            <input
-              list="facingList"
-              placeholder="Facing"
-              className={input}
-              value={form.facing}
-              onChange={(e) => setVal("facing", e.target.value)}
-            />
-            <datalist id="facingList">
-              <option value="North" />
-              <option value="South" />
-              <option value="East" />
-              <option value="West" />
-            </datalist>
-
-            <input
-              placeholder="Total Floor"
-              className={input}
-              value={form.totalFloor}
-              onChange={(e) => setVal("totalFloor", e.target.value)}
-            />
-          </div>
-
-          {/* ROW 4 */}
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <input
-              placeholder="Floor No"
-              className={input}
-              value={form.floorNo}
-              onChange={(e) => setVal("floorNo", e.target.value)}
-            />
-            <input
-              placeholder="Road"
-              className={input}
-              value={form.road}
-              onChange={(e) => setVal("road", e.target.value)}
-            />
-            <input
-              list="furnishList"
-              placeholder="Furnished"
-              className={input}
-              value={form.furnished}
-              onChange={(e) => setVal("furnished", e.target.value)}
-            />
-            <datalist id="furnishList">
-              <option value="Full Furnished" />
-              <option value="Semi Furnished" />
-              <option value="Unfurnished" />
-            </datalist>
-          </div>
-
-          {/* ROW 5 */}
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <input
-              list="parkingList"
-              placeholder="Parking"
-              className={input}
-              value={form.parking}
-              onChange={(e) => setVal("parking", e.target.value)}
-            />
-            <datalist id="parkingList">
-              <option value="1" />
-              <option value="2" />
-              <option value="3" />
-            </datalist>
-
-            <input
-              placeholder="Contact Number"
-              className={input}
-              value={form.contact}
-              onChange={(e) => setVal("contact", e.target.value)}
-            />
-
-            <input
-              placeholder="Reference By"
-              className={input}
-              value={form.referenceBy}
-              onChange={(e) => setVal("referenceBy", e.target.value)}
-            />
-          </div>
-
-          {/* ROW 6 */}
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <input
-              placeholder="Project Name"
-              className={input}
-              value={form.projectName}
-              onChange={(e) => setVal("projectName", e.target.value)}
-            />
-            <input
-              placeholder="Address"
-              className={input}
-              value={form.address}
-              onChange={(e) => setVal("address", e.target.value)}
             />
           </div>
 
@@ -343,17 +203,7 @@ export default function AddPropertyPage() {
             />
           </div>
 
-          {/* ADDITIONAL */}
-          <div className="mt-4">
-            <textarea
-              placeholder="Additional Details"
-              className={input}
-              value={form.additional}
-              onChange={(e) => setVal("additional", e.target.value)}
-            />
-          </div>
-
-          {/* FILE */}
+          {/* FILE — GAP FIXED */}
           <div className="mt-4">
             <label className="font-semibold">Upload Photos</label>
             <input
