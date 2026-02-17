@@ -90,7 +90,6 @@ export default function AddPropertyPage() {
       setLoading(true);
       let payload: any = { ...form };
 
-      // convert all files
       if (form.files?.length) {
         payload.filesBase64 = await Promise.all(
           form.files.map((f: File) => toBase64(f))
@@ -103,7 +102,6 @@ export default function AddPropertyPage() {
         body: JSON.stringify(payload),
       });
 
-      // local backup
       const existing = localStorage.getItem("properties");
       const properties = existing ? JSON.parse(existing) : [];
 
@@ -178,6 +176,12 @@ export default function AddPropertyPage() {
           {/* ROW 2 */}
           <div className="grid md:grid-cols-3 gap-4 mt-4">
             <input
+              placeholder="Condition"
+              className={input}
+              value={form.condition}
+              onChange={(e) => setVal("condition", e.target.value)}
+            />
+            <input
               placeholder="Bedroom"
               className={input}
               value={form.bedroom}
@@ -189,11 +193,87 @@ export default function AddPropertyPage() {
               value={form.bath}
               onChange={(e) => setVal("bath", e.target.value)}
             />
+          </div>
+
+          {/* ROW 3 */}
+          <div className="grid md:grid-cols-3 gap-4 mt-4">
             <input
               placeholder="Size (sqft)"
               className={input}
               value={form.size}
               onChange={(e) => setVal("size", e.target.value)}
+            />
+            <input
+              placeholder="Facing"
+              className={input}
+              value={form.facing}
+              onChange={(e) => setVal("facing", e.target.value)}
+            />
+            <input
+              placeholder="Total Floor"
+              className={input}
+              value={form.totalFloor}
+              onChange={(e) => setVal("totalFloor", e.target.value)}
+            />
+          </div>
+
+          {/* ROW 4 */}
+          <div className="grid md:grid-cols-3 gap-4 mt-4">
+            <input
+              placeholder="Floor No"
+              className={input}
+              value={form.floorNo}
+              onChange={(e) => setVal("floorNo", e.target.value)}
+            />
+            <input
+              placeholder="Road"
+              className={input}
+              value={form.road}
+              onChange={(e) => setVal("road", e.target.value)}
+            />
+            <input
+              placeholder="Furnished"
+              className={input}
+              value={form.furnished}
+              onChange={(e) => setVal("furnished", e.target.value)}
+            />
+          </div>
+
+          {/* ROW 5 */}
+          <div className="grid md:grid-cols-3 gap-4 mt-4">
+            <input
+              placeholder="Parking"
+              className={input}
+              value={form.parking}
+              onChange={(e) => setVal("parking", e.target.value)}
+            />
+            <input
+              placeholder="Contact Number"
+              className={input}
+              value={form.contact}
+              onChange={(e) => setVal("contact", e.target.value)}
+            />
+            <input
+              placeholder="Reference By"
+              className={input}
+              value={form.referenceBy}
+              onChange={(e) => setVal("referenceBy", e.target.value)}
+            />
+          </div>
+
+          {/* ROW 6 */}
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <input
+              placeholder="Project Name"
+              className={input}
+              value={form.projectName}
+              onChange={(e) => setVal("projectName", e.target.value)}
+            />
+            <input
+              placeholder="Address"
+              className={input}
+              value={form.address}
+              onChange={(e) => setVal("address", e.target.value)}
             />
           </div>
 
@@ -217,13 +297,13 @@ export default function AddPropertyPage() {
             />
           </div>
 
-          {/* ADDRESS */}
+          {/* ADDITIONAL */}
           <div className="mt-4">
             <textarea
-              placeholder="Address / Additional Details"
+              placeholder="Additional Details"
               className={input}
-              value={form.address}
-              onChange={(e) => setVal("address", e.target.value)}
+              value={form.additional}
+              onChange={(e) => setVal("additional", e.target.value)}
             />
           </div>
 
@@ -237,7 +317,6 @@ export default function AddPropertyPage() {
               onChange={(e) => handleFiles(e.target.files)}
             />
 
-            {/* preview */}
             {preview.length > 0 && (
               <div className="grid grid-cols-4 gap-3 mt-3">
                 {preview.map((src, i) => (
@@ -249,16 +328,6 @@ export default function AddPropertyPage() {
                 ))}
               </div>
             )}
-          </div>
-
-          {/* CONTACT */}
-          <div className="mt-4">
-            <input
-              placeholder="Contact Number"
-              className={input}
-              value={form.contact}
-              onChange={(e) => setVal("contact", e.target.value)}
-            />
           </div>
 
           {/* BUTTON */}
@@ -277,6 +346,7 @@ export default function AddPropertyPage() {
     </div>
   );
 }
+
 
 
 
