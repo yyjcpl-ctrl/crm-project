@@ -38,22 +38,21 @@ export default function AddPropertyPage() {
   const input =
     "w-full border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-3 rounded-xl outline-none transition bg-white";
 
-  // ✅ AUTO DATE (user change allowed)
+  // ✅ AUTO DATE
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     setForm((p: any) => ({ ...p, date: p.date || today }));
   }, []);
 
-  // 🔥 number formatter
+  // ✅ price formatter
   const formatPrice = (val: string) => {
     const num = val.replace(/[^0-9]/g, "");
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  // ✅ MULTI FILE PREVIEW (FIXED)
+  // ✅ file handler
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
-
     const arr = Array.from(files);
     setForm((p: any) => ({ ...p, files: arr }));
 
@@ -61,7 +60,7 @@ export default function AddPropertyPage() {
     setPreview(urls);
   };
 
-  // 🔥 file → base64
+  // ✅ file → base64
   const toBase64 = (file: File) =>
     new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
@@ -71,7 +70,7 @@ export default function AddPropertyPage() {
       reader.onerror = reject;
     });
 
-  // ✅ VALIDATION
+  // ✅ validation
   const validate = () => {
     if (!form.propertyFor) return "Select Property For";
     if (!form.type) return "Select Property Type";
@@ -79,7 +78,7 @@ export default function AddPropertyPage() {
     return null;
   };
 
-  // ✅ SUBMIT
+  // ✅ submit
   const handleSubmit = async () => {
     const errMsg = validate();
     if (errMsg) {
@@ -134,7 +133,7 @@ export default function AddPropertyPage() {
             <input
               type="date"
               className={input}
-              value={form.date || ""}
+              value={form.date}
               onChange={(e) => setVal("date", e.target.value)}
             />
 
@@ -165,21 +164,109 @@ export default function AddPropertyPage() {
               <option value="G+2" />
               <option value="G+3" />
             </datalist>
-          </div>
 
-          {/* ROW 2 */}
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
             <input
               placeholder="Condition"
               className={input}
               value={form.condition}
               onChange={(e) => setVal("condition", e.target.value)}
             />
+          </div>
+
+          {/* ROW 2 */}
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
             <input
               placeholder="Bedroom"
               className={input}
               value={form.bedroom}
               onChange={(e) => setVal("bedroom", e.target.value)}
+            />
+            <input
+              placeholder="Bath"
+              className={input}
+              value={form.bath}
+              onChange={(e) => setVal("bath", e.target.value)}
+            />
+
+            <input
+              placeholder="Size (sqft)"
+              className={input}
+              value={form.size}
+              onChange={(e) => setVal("size", e.target.value)}
+            />
+            <input
+              placeholder="Facing"
+              className={input}
+              value={form.facing}
+              onChange={(e) => setVal("facing", e.target.value)}
+            />
+          </div>
+
+          {/* ROW 3 */}
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <input
+              placeholder="Total Floor"
+              className={input}
+              value={form.totalFloor}
+              onChange={(e) => setVal("totalFloor", e.target.value)}
+            />
+            <input
+              placeholder="Floor No"
+              className={input}
+              value={form.floorNo}
+              onChange={(e) => setVal("floorNo", e.target.value)}
+            />
+
+            <input
+              placeholder="Road"
+              className={input}
+              value={form.road}
+              onChange={(e) => setVal("road", e.target.value)}
+            />
+            <input
+              placeholder="Furnished"
+              className={input}
+              value={form.furnished}
+              onChange={(e) => setVal("furnished", e.target.value)}
+            />
+          </div>
+
+          {/* ROW 4 */}
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <input
+              placeholder="Parking"
+              className={input}
+              value={form.parking}
+              onChange={(e) => setVal("parking", e.target.value)}
+            />
+            <input
+              placeholder="Contact Number"
+              className={input}
+              value={form.contact}
+              onChange={(e) => setVal("contact", e.target.value)}
+            />
+
+            <input
+              placeholder="Reference By"
+              className={input}
+              value={form.referenceBy}
+              onChange={(e) => setVal("referenceBy", e.target.value)}
+            />
+            <input
+              placeholder="Project Name"
+              className={input}
+              value={form.projectName}
+              onChange={(e) => setVal("projectName", e.target.value)}
+            />
+          </div>
+
+          {/* ADDRESS */}
+          <div className="mt-4">
+            <input
+              placeholder="Address"
+              className={input}
+              value={form.address}
+              onChange={(e) => setVal("address", e.target.value)}
             />
           </div>
 
@@ -203,7 +290,17 @@ export default function AddPropertyPage() {
             />
           </div>
 
-          {/* FILE — GAP FIXED */}
+          {/* ADDITIONAL */}
+          <div className="mt-4">
+            <textarea
+              placeholder="Additional Details"
+              className={input}
+              value={form.additional}
+              onChange={(e) => setVal("additional", e.target.value)}
+            />
+          </div>
+
+          {/* FILE */}
           <div className="mt-4">
             <label className="font-semibold">Upload Photos</label>
             <input
@@ -242,6 +339,7 @@ export default function AddPropertyPage() {
     </div>
   );
 }
+
 
 
 
