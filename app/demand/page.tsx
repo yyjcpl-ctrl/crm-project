@@ -49,7 +49,7 @@ export default function DemandPage() {
   const input =
     "w-full border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 p-2 rounded-lg text-sm outline-none transition";
 
-  // ✅ load
+  // load
   useEffect(() => {
     const p = localStorage.getItem("properties");
     const d = localStorage.getItem("demands");
@@ -58,7 +58,7 @@ export default function DemandPage() {
     setDemands(d ? JSON.parse(d) : []);
   }, []);
 
-  // ✅ add demand
+  // add demand
   const addDemand = () => {
     if (!form.name) {
       alert("Enter client name");
@@ -96,7 +96,7 @@ export default function DemandPage() {
     });
   };
 
-  // ✅ close demand
+  // close demand
   const closeDemand = (id: number) => {
     const updated = demands.map((d) =>
       d.id === id ? { ...d, status: "Closed" } : d
@@ -105,29 +105,25 @@ export default function DemandPage() {
     localStorage.setItem("demands", JSON.stringify(updated));
   };
 
-  // 🗑 delete demand
+  // delete demand
   const deleteDemand = (id: number) => {
     const updated = demands.filter((d) => d.id !== id);
     setDemands(updated);
     localStorage.setItem("demands", JSON.stringify(updated));
   };
 
-  // 📲 WhatsApp share
+  // whatsapp
   const shareWhatsApp = (d: any) => {
     const text = `Client Requirement:
 Name: ${d.name}
 Mobile: ${d.mobile}
-Property For: ${d.propertyFor || "-"}
-Type: ${d.type || "-"}
-Bedroom: ${d.bedroom || "-"}
 Budget: ₹${d.minPrice || 0} - ₹${d.maxPrice || 0}
 Locality: ${d.locality || "-"}`;
 
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
 
-  // 🎯 match logic
+  // match logic
   const getMatches = (demand: any) => {
     return properties.filter((item) => {
       const price = Number(item.price || 0);
@@ -135,18 +131,6 @@ Locality: ${d.locality || "-"}`;
       return (
         (!demand.type ||
           item.type?.toLowerCase().includes(demand.type.toLowerCase())) &&
-        (!demand.condition ||
-          item.condition?.toLowerCase().includes(
-            demand.condition.toLowerCase()
-          )) &&
-        (!demand.bedroom || item.bedroom?.includes(demand.bedroom)) &&
-        (!demand.bath || item.bath?.includes(demand.bath)) &&
-        (!demand.facing ||
-          item.facing?.toLowerCase().includes(
-            demand.facing.toLowerCase()
-          )) &&
-        (!demand.size ||
-          item.size?.toLowerCase().includes(demand.size.toLowerCase())) &&
         (!demand.locality ||
           item.address?.toLowerCase().includes(
             demand.locality.toLowerCase()
@@ -173,7 +157,7 @@ Locality: ${d.locality || "-"}`;
           Client Demand Manager
         </h1>
 
-        {/* ➕ ADD DEMAND FORM */}
+        {/* FORM */}
         <div className="border rounded-2xl p-5 mb-8 bg-white/80 backdrop-blur shadow-xl">
           <h2 className="font-bold text-lg mb-4">Add Client Demand</h2>
 
@@ -182,37 +166,12 @@ Locality: ${d.locality || "-"}`;
               value={form.name} onChange={(e) => setVal("name", e.target.value)} />
             <input className={input} placeholder="Mobile"
               value={form.mobile} onChange={(e) => setVal("mobile", e.target.value)} />
-            <input className={input} placeholder="Reference By"
-              value={form.reference} onChange={(e) => setVal("reference", e.target.value)} />
-            <input list="propertyForList" className={input}
-              placeholder="Property For"
-              value={form.propertyFor}
-              onChange={(e) => setVal("propertyFor", e.target.value)} />
-            <datalist id="propertyForList">
-              <option value="Buy" />
-              <option value="Rent" />
-              <option value="Lease" />
-            </datalist>
-            <input className={input} placeholder="Type"
-              value={form.type} onChange={(e) => setVal("type", e.target.value)} />
-            <input className={input} placeholder="New / Resale"
-              value={form.condition} onChange={(e) => setVal("condition", e.target.value)} />
-            <input className={input} placeholder="Bedroom"
-              value={form.bedroom} onChange={(e) => setVal("bedroom", e.target.value)} />
-            <input className={input} placeholder="Bath"
-              value={form.bath} onChange={(e) => setVal("bath", e.target.value)} />
-            <input className={input} placeholder="Facing"
-              value={form.facing} onChange={(e) => setVal("facing", e.target.value)} />
-            <input className={input} placeholder="Size"
-              value={form.size} onChange={(e) => setVal("size", e.target.value)} />
+            <input className={input} placeholder="Locality"
+              value={form.locality} onChange={(e) => setVal("locality", e.target.value)} />
             <input className={input} placeholder="Min Price"
               value={form.minPrice} onChange={(e) => setVal("minPrice", e.target.value)} />
             <input className={input} placeholder="Max Price"
               value={form.maxPrice} onChange={(e) => setVal("maxPrice", e.target.value)} />
-            <input className={input} placeholder="Locality"
-              value={form.locality} onChange={(e) => setVal("locality", e.target.value)} />
-            <input type="date" className={input}
-              value={form.followup} onChange={(e) => setVal("followup", e.target.value)} />
           </div>
 
           <button
@@ -223,18 +182,15 @@ Locality: ${d.locality || "-"}`;
           </button>
         </div>
 
-        {/* 📋 DEMAND LIST */}
+        {/* DEMAND LIST */}
         <div className="space-y-4">
-          {demands.map((d) => {
-            const matches = getMatches(d);
-            return (
-              <div key={d.id} className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border">
-                <div className="flex justify-between flex-wrap gap-2">
-                  <h3 className="font-bold">{d.name} ({d.mobile})</h3>
-                </div>
-              </div>
-            );
-          })}
+          {demands.map((d) => (
+            <div key={d.id} className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border">
+              <h3 className="font-bold">
+                {d.name} ({d.mobile})
+              </h3>
+            </div>
+          ))}
         </div>
       </div>
 
