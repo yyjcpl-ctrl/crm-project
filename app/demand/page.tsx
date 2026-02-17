@@ -145,7 +145,8 @@ Locality: ${d.locality || "-"}`;
     <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-[length:400%_400%] bg-gradient-to-br from-indigo-200 via-white to-purple-200 animate-gradientMove" />
 
-      <div className="p-6 pb-24 max-w-7xl mx-auto">
+      {/* ✅ ONLY FIX ADDED HERE */}
+      <div className="relative z-10 p-6 pb-24 max-w-7xl mx-auto">
         <button
           onClick={() => (window.location.href = "/dashboard")}
           className="relative z-50 inline-flex items-center gap-2 mb-4 bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded-lg font-semibold transition"
@@ -245,3 +246,4 @@ Locality: ${d.locality || "-"}`;
     </div>
   );
 }
+
