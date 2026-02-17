@@ -22,28 +22,21 @@ export default function DemandPage() {
   const [properties, setProperties] = useState<any[]>([]);
   const [demands, setDemands] = useState<any[]>([]);
   const [openDetail, setOpenDetail] = useState<number | null>(null);
+  const [openMatch, setOpenMatch] = useState<number | null>(null);
 
-  const [form, setForm] = useState({
-    name: "",
-    mobile: "",
-    reference: "",
-    propertyFor: "", // ✅ NEW FIELD
-    type: "",
-    condition: "",
-    bedroom: "",
-    bath: "",
-    facing: "",
-    size: "",
-    purpose: "",
-    lead: "",
-    minPrice: "",
-    maxPrice: "",
-    locality: "",
-    followup: "",
-  });
+  const shareWhatsApp = (d: any) => {
+    const text = `Client Requirement:
+Name: ${d.name}
+Mobile: ${d.mobile}
+Property For: ${d.propertyFor || "-"}
+Type: ${d.type || "-"}
+Bedroom: ${d.bedroom || "-"}
+Budget: ₹${d.minPrice || 0} - ₹${d.maxPrice || 0}
+Locality: ${d.locality || "-"}`;
 
-  const setVal = (k: string, v: string) =>
-    setForm((p) => ({ ...p, [k]: v }));
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
 
   const input =
     "w-full border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 p-2 rounded-lg text-sm outline-none transition";
@@ -57,42 +50,11 @@ export default function DemandPage() {
     setDemands(d ? JSON.parse(d) : []);
   }, []);
 
-  // ✅ add demand
-  const addDemand = () => {
-    if (!form.name) {
-      alert("Enter client name");
-      return;
-    }
-
-    const newDemand = {
-      id: Date.now(),
-      status: "Open",
-      createdAt: new Date().toLocaleDateString(),
-      ...form,
-    };
-
-    const updated = [newDemand, ...demands];
+  // 🗑 delete demand
+  const deleteDemand = (id: number) => {
+    const updated = demands.filter((d) => d.id !== id);
     setDemands(updated);
     localStorage.setItem("demands", JSON.stringify(updated));
-
-    setForm({
-      name: "",
-      mobile: "",
-      reference: "",
-      propertyFor: "", // ✅ reset
-      type: "",
-      condition: "",
-      bedroom: "",
-      bath: "",
-      facing: "",
-      size: "",
-      purpose: "",
-      lead: "",
-      minPrice: "",
-      maxPrice: "",
-      locality: "",
-      followup: "",
-    });
   };
 
   // ✅ close demand
@@ -116,10 +78,8 @@ export default function DemandPage() {
           item.condition?.toLowerCase().includes(
             demand.condition.toLowerCase()
           )) &&
-        (!demand.bedroom ||
-          item.bedroom?.includes(demand.bedroom)) &&
-        (!demand.bath ||
-          item.bath?.includes(demand.bath)) &&
+        (!demand.bedroom || item.bedroom?.includes(demand.bedroom)) &&
+        (!demand.bath || item.bath?.includes(demand.bath)) &&
         (!demand.facing ||
           item.facing?.toLowerCase().includes(
             demand.facing.toLowerCase()
@@ -138,18 +98,9 @@ export default function DemandPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-
-      {/* 🌌 MOVING PREMIUM BACKGROUND */}
       <div className="absolute inset-0 -z-10 bg-[length:400%_400%] bg-gradient-to-br from-indigo-200 via-white to-purple-200 animate-gradientMove" />
 
-      {/* blobs */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-purple-300/40 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-300/40 rounded-full blur-3xl animate-pulse" />
-
-      {/* content */}
       <div className="p-6 pb-24 max-w-7xl mx-auto">
-
-        {/* 🔙 back */}
         <button
           onClick={() => (window.location.href = "/dashboard")}
           className="relative z-50 inline-flex items-center gap-2 mb-4 bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded-lg font-semibold transition"
@@ -161,95 +112,6 @@ export default function DemandPage() {
           Client Demand Manager
         </h1>
 
-        {/* ➕ ADD DEMAND */}
-        <div className="border rounded-2xl p-5 mb-8 bg-white/80 backdrop-blur shadow-xl">
-          <h2 className="font-bold text-lg mb-4">Add Client Demand</h2>
-
-          <div className="grid md:grid-cols-4 gap-3">
-            <input className={input} placeholder="Client Name"
-              value={form.name} onChange={(e) => setVal("name", e.target.value)} />
-
-            <input className={input} placeholder="Mobile"
-              value={form.mobile} onChange={(e) => setVal("mobile", e.target.value)} />
-
-            <input className={input} placeholder="Reference By"
-              value={form.reference} onChange={(e) => setVal("reference", e.target.value)} />
-
-            {/* ✅ NEW ULTRA DROPDOWN */}
-            <>
-              <input
-                list="propertyForList"
-                className={input}
-                placeholder="Property For"
-                value={form.propertyFor}
-                onChange={(e) => setVal("propertyFor", e.target.value)}
-              />
-              <datalist id="propertyForList">
-                <option value="Buy" />
-                <option value="Rent" />
-                <option value="Lease" />
-              </datalist>
-            </>
-
-            <input className={input} placeholder="Type"
-              value={form.type} onChange={(e) => setVal("type", e.target.value)} />
-
-            <input className={input} placeholder="New / Resale"
-              value={form.condition} onChange={(e) => setVal("condition", e.target.value)} />
-
-            <input className={input} placeholder="Bedroom"
-              value={form.bedroom} onChange={(e) => setVal("bedroom", e.target.value)} />
-
-            <input className={input} placeholder="Bath"
-              value={form.bath} onChange={(e) => setVal("bath", e.target.value)} />
-
-            <input className={input} placeholder="Facing"
-              value={form.facing} onChange={(e) => setVal("facing", e.target.value)} />
-
-            <input className={input} placeholder="Size"
-              value={form.size} onChange={(e) => setVal("size", e.target.value)} />
-
-            <input list="purposeList" className={input}
-              placeholder="Purpose"
-              value={form.purpose}
-              onChange={(e) => setVal("purpose", e.target.value)} />
-            <datalist id="purposeList">
-              <option value="Self Use" />
-              <option value="Investor" />
-            </datalist>
-
-            <input list="leadList" className={input}
-              placeholder="Lead"
-              value={form.lead}
-              onChange={(e) => setVal("lead", e.target.value)} />
-            <datalist id="leadList">
-              <option value="Hot" />
-              <option value="Normal" />
-              <option value="Cold" />
-            </datalist>
-
-            <input className={input} placeholder="Min Price"
-              value={form.minPrice} onChange={(e) => setVal("minPrice", e.target.value)} />
-
-            <input className={input} placeholder="Max Price"
-              value={form.maxPrice} onChange={(e) => setVal("maxPrice", e.target.value)} />
-
-            <input className={input} placeholder="Locality"
-              value={form.locality} onChange={(e) => setVal("locality", e.target.value)} />
-
-            <input type="date" className={input}
-              value={form.followup} onChange={(e) => setVal("followup", e.target.value)} />
-          </div>
-
-          <button
-            onClick={addDemand}
-            className="mt-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-2 rounded-xl font-semibold shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-          >
-            Save Demand
-          </button>
-        </div>
-
-        {/* 📋 DEMAND LIST — SAME */}
         <div className="space-y-4">
           {demands.map((d) => {
             const matches = getMatches(d);
@@ -257,7 +119,7 @@ export default function DemandPage() {
             return (
               <div
                 key={d.id}
-                className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border"
               >
                 <div className="flex justify-between flex-wrap gap-2">
                   <div>
@@ -267,11 +129,6 @@ export default function DemandPage() {
                   </div>
 
                   <div className="flex gap-2 items-center flex-wrap">
-                    <span className="text-lg">
-                      {d.lead?.toLowerCase() === "hot" && "🔥"}
-                      {d.lead?.toLowerCase() === "normal" && "⭐"}
-                    </span>
-
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         d.status === "Closed"
@@ -286,33 +143,87 @@ export default function DemandPage() {
                       onClick={() =>
                         setOpenDetail(openDetail === d.id ? null : d.id)
                       }
-                      className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-blue-700 transition"
+                      className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs"
                     >
                       See Details
+                    </button>
+
+                    {/* ✅ WhatsApp */}
+                    <button
+                      onClick={() => shareWhatsApp(d)}
+                      className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs"
+                    >
+                      WhatsApp
                     </button>
 
                     {d.status !== "Closed" && (
                       <button
                         onClick={() => closeDemand(d.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs hover:bg-red-600 transition"
+                        className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs"
                       >
                         Close
+                      </button>
+                    )}
+
+                    {d.status === "Closed" && (
+                      <button
+                        onClick={() => deleteDemand(d.id)}
+                        className="bg-gray-800 text-white px-3 py-1 rounded-lg text-xs"
+                      >
+                        Delete
                       </button>
                     )}
                   </div>
                 </div>
 
+                {/* DETAILS */}
                 {openDetail === d.id && (
-                  <div className="mt-3 border rounded-xl p-3 text-sm bg-gray-50">
+                  <div className="mt-3 border rounded-xl p-3 text-sm bg-gray-50 space-y-1">
+                    <div><b>Client:</b> {d.name}</div>
+                    <div><b>Mobile:</b> {d.mobile}</div>
                     <div><b>Type:</b> {d.type || "-"}</div>
                     <div><b>Bedroom:</b> {d.bedroom || "-"}</div>
-                    <div><b>Bath:</b> {d.bath || "-"}</div>
                     <div><b>Budget:</b> ₹{d.minPrice || 0} - ₹{d.maxPrice || 0}</div>
                     <div><b>Locality:</b> {d.locality || "-"}</div>
 
-                    <div className="mt-3 font-semibold text-purple-700">
+                    <button
+                      onClick={() =>
+                        setOpenMatch(openMatch === d.id ? null : d.id)
+                      }
+                      className="mt-3 text-purple-700 font-semibold underline"
+                    >
                       Matching Properties ({matches.length})
-                    </div>
+                    </button>
+
+                    {openMatch === d.id && (
+                      <div className="mt-2 space-y-2">
+                        {matches.length === 0 && (
+                          <div className="text-gray-500">
+                            No matching property
+                          </div>
+                        )}
+
+                        {matches.map((m: any) => (
+                          <div
+                            key={m.id}
+                            className="border rounded-lg p-2 bg-white"
+                          >
+                            <div><b>Type:</b> {m.type}</div>
+                            <div><b>Price:</b> ₹{m.price}</div>
+                            <div><b>Area:</b> {m.size}</div>
+                            <div><b>Location:</b> {m.address}</div>
+
+                            {/* ⭐ PROPERTY OPEN LINK */}
+                            <Link
+                              href={`/property/${m.id}`}
+                              className="inline-block mt-1 text-blue-600 underline text-xs"
+                            >
+                              Open Property →
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -321,7 +232,6 @@ export default function DemandPage() {
         </div>
       </div>
 
-      {/* 🎬 gradient animation */}
       <style jsx global>{`
         @keyframes gradientMove {
           0% { background-position: 0% 50%; }
@@ -335,4 +245,5 @@ export default function DemandPage() {
     </div>
   );
 }
+
 
