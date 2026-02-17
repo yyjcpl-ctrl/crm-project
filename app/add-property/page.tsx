@@ -25,10 +25,12 @@ export default function AddPropertyPage() {
     additional: "",
     minPrice: "",
     maxPrice: "",
-    file: null as File | null,
+    files: [] as File[],
   };
 
   const [form, setForm] = useState<any>(initialForm);
+  const [preview, setPreview] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const setVal = (k: string, v: any) =>
     setForm((p: any) => ({ ...p, [k]: v }));
@@ -42,6 +44,22 @@ export default function AddPropertyPage() {
     setForm((p: any) => ({ ...p, date: p.date || today }));
   }, []);
 
+  // 🔥 number formatter
+  const formatPrice = (val: string) => {
+    const num = val.replace(/[^0-9]/g, "");
+    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  // 🔥 multi file preview
+  const handleFiles = (files: FileList | null) => {
+    if (!files) return;
+    const arr = Array.from(files);
+    setForm((p: any) => ({ ...p, files: arr }));
+
+    const urls = arr.map((f) => URL.createObjectURL(f));
+    setPreview(urls);
+  };
+
   // 🔥 file → base64
   const toBase64 = (file: File) =>
     new Promise<string>((resolve, reject) => {
@@ -52,30 +70,40 @@ export default function AddPropertyPage() {
       reader.onerror = reject;
     });
 
-  // ✅ SUBMIT (GOOGLE SHEET)
+  // ✅ VALIDATION
+  const validate = () => {
+    if (!form.propertyFor) return "Select Property For";
+    if (!form.type) return "Select Property Type";
+    if (!form.contact) return "Enter Contact Number";
+    return null;
+  };
+
+  // ✅ SUBMIT
   const handleSubmit = async () => {
-    if (!form.date) {
-      alert("⚠️ Please fill the form first");
+    const errMsg = validate();
+    if (errMsg) {
+      alert("⚠️ " + errMsg);
       return;
     }
 
     try {
+      setLoading(true);
       let payload: any = { ...form };
 
-      // file convert
-      if (form.file) {
-        payload.fileBase64 = await toBase64(form.file);
-        payload.fileType = form.file.type;
+      // convert all files
+      if (form.files?.length) {
+        payload.filesBase64 = await Promise.all(
+          form.files.map((f: File) => toBase64(f))
+        );
       }
 
-      // ✅ Google Sheet API
       await fetch("/api/save-property", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      // ✅ Local backup
+      // local backup
       const existing = localStorage.getItem("properties");
       const properties = existing ? JSON.parse(existing) : [];
 
@@ -89,16 +117,18 @@ export default function AddPropertyPage() {
 
       alert("✅ Property Saved Successfully!");
       setForm(initialForm);
+      setPreview([]);
     } catch (err) {
       console.error(err);
       alert("❌ Error saving property");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 p-6">
-      <div className="max-w-4xl mx-auto">
-
+      <div className="max-w-5xl mx-auto">
         <Link
           href="/dashboard"
           className="inline-block mb-4 bg-white/90 px-4 py-2 rounded-xl shadow hover:scale-105 transition"
@@ -108,7 +138,7 @@ export default function AddPropertyPage() {
 
         <div className="bg-white rounded-3xl p-6 shadow-2xl">
           <h1 className="text-3xl font-bold mb-6 text-gray-800">
-            ➕ Add Property
+            ➕ Add Property (Pro)
           </h1>
 
           {/* ROW 1 */}
@@ -120,56 +150,128 @@ export default function AddPropertyPage() {
               onChange={(e) => setVal("date", e.target.value)}
             />
 
-            <input
-              list="propertyForList"
-              placeholder="Property For"
+            <select
               className={input}
-              value={form.propertyFor || ""}
+              value={form.propertyFor}
               onChange={(e) => setVal("propertyFor", e.target.value)}
-            />
-            <datalist id="propertyForList">
-              <option value="Sale" />
-              <option value="Rent" />
-              <option value="Lease" />
-            </datalist>
+            >
+              <option value="">Property For</option>
+              <option value="Sale">Sale</option>
+              <option value="Rent">Rent</option>
+              <option value="Lease">Lease</option>
+            </select>
 
-            <input
-              list="typeList"
-              placeholder="Type"
+            <select
               className={input}
-              value={form.type || ""}
+              value={form.type}
               onChange={(e) => setVal("type", e.target.value)}
+            >
+              <option value="">Type</option>
+              <option value="Flat">Flat</option>
+              <option value="Villa">Villa</option>
+              <option value="Plot">Plot</option>
+              <option value="G+2">G+2</option>
+              <option value="G+3">G+3</option>
+            </select>
+          </div>
+
+          {/* ROW 2 */}
+          <div className="grid md:grid-cols-3 gap-4 mt-4">
+            <input
+              placeholder="Bedroom"
+              className={input}
+              value={form.bedroom}
+              onChange={(e) => setVal("bedroom", e.target.value)}
             />
-            <datalist id="typeList">
-              <option value="Flat" />
-              <option value="Villa" />
-              <option value="Plot" />
-              <option value="G+2" />
-              <option value="G+3" />
-            </datalist>
+            <input
+              placeholder="Bath"
+              className={input}
+              value={form.bath}
+              onChange={(e) => setVal("bath", e.target.value)}
+            />
+            <input
+              placeholder="Size (sqft)"
+              className={input}
+              value={form.size}
+              onChange={(e) => setVal("size", e.target.value)}
+            />
+          </div>
+
+          {/* PRICE */}
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <input
+              placeholder="Min Price ₹"
+              className={input}
+              value={form.minPrice}
+              onChange={(e) =>
+                setVal("minPrice", formatPrice(e.target.value))
+              }
+            />
+            <input
+              placeholder="Max Price ₹"
+              className={input}
+              value={form.maxPrice}
+              onChange={(e) =>
+                setVal("maxPrice", formatPrice(e.target.value))
+              }
+            />
+          </div>
+
+          {/* ADDRESS */}
+          <div className="mt-4">
+            <textarea
+              placeholder="Address / Additional Details"
+              className={input}
+              value={form.address}
+              onChange={(e) => setVal("address", e.target.value)}
+            />
           </div>
 
           {/* FILE */}
           <div className="mt-4">
-            <label className="font-semibold">Upload Photo/Video</label>
+            <label className="font-semibold">Upload Photos</label>
             <input
               type="file"
+              multiple
               className="w-full mt-2"
-              onChange={(e) => setVal("file", e.target.files?.[0] || null)}
+              onChange={(e) => handleFiles(e.target.files)}
+            />
+
+            {/* preview */}
+            {preview.length > 0 && (
+              <div className="grid grid-cols-4 gap-3 mt-3">
+                {preview.map((src, i) => (
+                  <img
+                    key={i}
+                    src={src}
+                    className="w-full h-24 object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* CONTACT */}
+          <div className="mt-4">
+            <input
+              placeholder="Contact Number"
+              className={input}
+              value={form.contact}
+              onChange={(e) => setVal("contact", e.target.value)}
             />
           </div>
 
           {/* BUTTON */}
           <button
             type="button"
+            disabled={loading}
             onClick={handleSubmit}
             className="w-full mt-6 py-3 rounded-xl font-semibold text-white
             bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500
-            hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+            hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-60"
           >
-            🚀 Save Property
+            {loading ? "Saving..." : "🚀 Save Property"}
           </button>
-
         </div>
       </div>
     </div>
