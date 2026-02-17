@@ -173,6 +173,69 @@ Locality: ${d.locality || "-"}`;
           Client Demand Manager
         </h1>
 
+        {/* ➕ ADD DEMAND FORM — RESTORED */}
+        <div className="border rounded-2xl p-5 mb-8 bg-white/80 backdrop-blur shadow-xl">
+          <h2 className="font-bold text-lg mb-4">Add Client Demand</h2>
+
+          <div className="grid md:grid-cols-4 gap-3">
+            <input className={input} placeholder="Client Name"
+              value={form.name} onChange={(e) => setVal("name", e.target.value)} />
+
+            <input className={input} placeholder="Mobile"
+              value={form.mobile} onChange={(e) => setVal("mobile", e.target.value)} />
+
+            <input className={input} placeholder="Reference By"
+              value={form.reference} onChange={(e) => setVal("reference", e.target.value)} />
+
+            <input list="propertyForList" className={input}
+              placeholder="Property For"
+              value={form.propertyFor}
+              onChange={(e) => setVal("propertyFor", e.target.value)} />
+            <datalist id="propertyForList">
+              <option value="Buy" />
+              <option value="Rent" />
+              <option value="Lease" />
+            </datalist>
+
+            <input className={input} placeholder="Type"
+              value={form.type} onChange={(e) => setVal("type", e.target.value)} />
+
+            <input className={input} placeholder="New / Resale"
+              value={form.condition} onChange={(e) => setVal("condition", e.target.value)} />
+
+            <input className={input} placeholder="Bedroom"
+              value={form.bedroom} onChange={(e) => setVal("bedroom", e.target.value)} />
+
+            <input className={input} placeholder="Bath"
+              value={form.bath} onChange={(e) => setVal("bath", e.target.value)} />
+
+            <input className={input} placeholder="Facing"
+              value={form.facing} onChange={(e) => setVal("facing", e.target.value)} />
+
+            <input className={input} placeholder="Size"
+              value={form.size} onChange={(e) => setVal("size", e.target.value)} />
+
+            <input className={input} placeholder="Min Price"
+              value={form.minPrice} onChange={(e) => setVal("minPrice", e.target.value)} />
+
+            <input className={input} placeholder="Max Price"
+              value={form.maxPrice} onChange={(e) => setVal("maxPrice", e.target.value)} />
+
+            <input className={input} placeholder="Locality"
+              value={form.locality} onChange={(e) => setVal("locality", e.target.value)} />
+
+            <input type="date" className={input}
+              value={form.followup} onChange={(e) => setVal("followup", e.target.value)} />
+          </div>
+
+          <button
+            onClick={addDemand}
+            className="mt-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-2 rounded-xl font-semibold shadow-lg"
+          >
+            Save Demand
+          </button>
+        </div>
+
         {/* 📋 DEMAND LIST */}
         <div className="space-y-4">
           {demands.map((d) => {
@@ -266,6 +329,7 @@ Locality: ${d.locality || "-"}`;
     </div>
   );
 }
+
 
 
 
