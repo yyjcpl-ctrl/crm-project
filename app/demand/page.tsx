@@ -24,19 +24,27 @@ export default function DemandPage() {
   const [openDetail, setOpenDetail] = useState<number | null>(null);
   const [openMatch, setOpenMatch] = useState<number | null>(null);
 
-  const shareWhatsApp = (d: any) => {
-    const text = `Client Requirement:
-Name: ${d.name}
-Mobile: ${d.mobile}
-Property For: ${d.propertyFor || "-"}
-Type: ${d.type || "-"}
-Bedroom: ${d.bedroom || "-"}
-Budget: ₹${d.minPrice || 0} - ₹${d.maxPrice || 0}
-Locality: ${d.locality || "-"}`;
+  const [form, setForm] = useState({
+    name: "",
+    mobile: "",
+    reference: "",
+    propertyFor: "",
+    type: "",
+    condition: "",
+    bedroom: "",
+    bath: "",
+    facing: "",
+    size: "",
+    purpose: "",
+    lead: "",
+    minPrice: "",
+    maxPrice: "",
+    locality: "",
+    followup: "",
+  });
 
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
-  };
+  const setVal = (k: string, v: string) =>
+    setForm((p) => ({ ...p, [k]: v }));
 
   const input =
     "w-full border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 p-2 rounded-lg text-sm outline-none transition";
@@ -50,11 +58,42 @@ Locality: ${d.locality || "-"}`;
     setDemands(d ? JSON.parse(d) : []);
   }, []);
 
-  // 🗑 delete demand
-  const deleteDemand = (id: number) => {
-    const updated = demands.filter((d) => d.id !== id);
+  // ✅ add demand
+  const addDemand = () => {
+    if (!form.name) {
+      alert("Enter client name");
+      return;
+    }
+
+    const newDemand = {
+      id: Date.now(),
+      status: "Open",
+      createdAt: new Date().toLocaleDateString(),
+      ...form,
+    };
+
+    const updated = [newDemand, ...demands];
     setDemands(updated);
     localStorage.setItem("demands", JSON.stringify(updated));
+
+    setForm({
+      name: "",
+      mobile: "",
+      reference: "",
+      propertyFor: "",
+      type: "",
+      condition: "",
+      bedroom: "",
+      bath: "",
+      facing: "",
+      size: "",
+      purpose: "",
+      lead: "",
+      minPrice: "",
+      maxPrice: "",
+      locality: "",
+      followup: "",
+    });
   };
 
   // ✅ close demand
@@ -64,6 +103,28 @@ Locality: ${d.locality || "-"}`;
     );
     setDemands(updated);
     localStorage.setItem("demands", JSON.stringify(updated));
+  };
+
+  // 🗑 delete demand
+  const deleteDemand = (id: number) => {
+    const updated = demands.filter((d) => d.id !== id);
+    setDemands(updated);
+    localStorage.setItem("demands", JSON.stringify(updated));
+  };
+
+  // 📲 WhatsApp share
+  const shareWhatsApp = (d: any) => {
+    const text = `Client Requirement:
+Name: ${d.name}
+Mobile: ${d.mobile}
+Property For: ${d.propertyFor || "-"}
+Type: ${d.type || "-"}
+Bedroom: ${d.bedroom || "-"}
+Budget: ₹${d.minPrice || 0} - ₹${d.maxPrice || 0}
+Locality: ${d.locality || "-"}`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
   };
 
   // 🎯 match logic
@@ -112,33 +173,82 @@ Locality: ${d.locality || "-"}`;
           Client Demand Manager
         </h1>
 
+        {/* ➕ ADD DEMAND FORM */}
+        <div className="border rounded-2xl p-5 mb-8 bg-white/80 backdrop-blur shadow-xl">
+          <h2 className="font-bold text-lg mb-4">Add Client Demand</h2>
+
+          <div className="grid md:grid-cols-4 gap-3">
+            <input className={input} placeholder="Client Name"
+              value={form.name} onChange={(e) => setVal("name", e.target.value)} />
+
+            <input className={input} placeholder="Mobile"
+              value={form.mobile} onChange={(e) => setVal("mobile", e.target.value)} />
+
+            <input className={input} placeholder="Reference By"
+              value={form.reference} onChange={(e) => setVal("reference", e.target.value)} />
+
+            <input list="propertyForList" className={input}
+              placeholder="Property For"
+              value={form.propertyFor}
+              onChange={(e) => setVal("propertyFor", e.target.value)} />
+            <datalist id="propertyForList">
+              <option value="Buy" />
+              <option value="Rent" />
+              <option value="Lease" />
+            </datalist>
+
+            <input className={input} placeholder="Type"
+              value={form.type} onChange={(e) => setVal("type", e.target.value)} />
+
+            <input className={input} placeholder="New / Resale"
+              value={form.condition} onChange={(e) => setVal("condition", e.target.value)} />
+
+            <input className={input} placeholder="Bedroom"
+              value={form.bedroom} onChange={(e) => setVal("bedroom", e.target.value)} />
+
+            <input className={input} placeholder="Bath"
+              value={form.bath} onChange={(e) => setVal("bath", e.target.value)} />
+
+            <input className={input} placeholder="Facing"
+              value={form.facing} onChange={(e) => setVal("facing", e.target.value)} />
+
+            <input className={input} placeholder="Size"
+              value={form.size} onChange={(e) => setVal("size", e.target.value)} />
+
+            <input className={input} placeholder="Min Price"
+              value={form.minPrice} onChange={(e) => setVal("minPrice", e.target.value)} />
+
+            <input className={input} placeholder="Max Price"
+              value={form.maxPrice} onChange={(e) => setVal("maxPrice", e.target.value)} />
+
+            <input className={input} placeholder="Locality"
+              value={form.locality} onChange={(e) => setVal("locality", e.target.value)} />
+
+            <input type="date" className={input}
+              value={form.followup} onChange={(e) => setVal("followup", e.target.value)} />
+          </div>
+
+          <button
+            onClick={addDemand}
+            className="mt-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-2 rounded-xl font-semibold shadow-lg"
+          >
+            Save Demand
+          </button>
+        </div>
+
+        {/* 📋 DEMAND LIST */}
         <div className="space-y-4">
           {demands.map((d) => {
             const matches = getMatches(d);
 
             return (
-              <div
-                key={d.id}
-                className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border"
-              >
+              <div key={d.id} className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border">
                 <div className="flex justify-between flex-wrap gap-2">
-                  <div>
-                    <h3 className="font-bold">
-                      {d.name} ({d.mobile})
-                    </h3>
-                  </div>
+                  <h3 className="font-bold">
+                    {d.name} ({d.mobile})
+                  </h3>
 
-                  <div className="flex gap-2 items-center flex-wrap">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        d.status === "Closed"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {d.status}
-                    </span>
-
+                  <div className="flex gap-2 flex-wrap">
                     <button
                       onClick={() =>
                         setOpenDetail(openDetail === d.id ? null : d.id)
@@ -148,7 +258,6 @@ Locality: ${d.locality || "-"}`;
                       See Details
                     </button>
 
-                    {/* ✅ WhatsApp */}
                     <button
                       onClick={() => shareWhatsApp(d)}
                       className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs"
@@ -176,47 +285,27 @@ Locality: ${d.locality || "-"}`;
                   </div>
                 </div>
 
-                {/* DETAILS */}
                 {openDetail === d.id && (
-                  <div className="mt-3 border rounded-xl p-3 text-sm bg-gray-50 space-y-1">
-                    <div><b>Client:</b> {d.name}</div>
-                    <div><b>Mobile:</b> {d.mobile}</div>
-                    <div><b>Type:</b> {d.type || "-"}</div>
-                    <div><b>Bedroom:</b> {d.bedroom || "-"}</div>
-                    <div><b>Budget:</b> ₹{d.minPrice || 0} - ₹{d.maxPrice || 0}</div>
-                    <div><b>Locality:</b> {d.locality || "-"}</div>
-
+                  <div className="mt-3 border rounded-xl p-3 text-sm bg-gray-50">
                     <button
                       onClick={() =>
                         setOpenMatch(openMatch === d.id ? null : d.id)
                       }
-                      className="mt-3 text-purple-700 font-semibold underline"
+                      className="text-purple-700 font-semibold underline"
                     >
                       Matching Properties ({matches.length})
                     </button>
 
                     {openMatch === d.id && (
                       <div className="mt-2 space-y-2">
-                        {matches.length === 0 && (
-                          <div className="text-gray-500">
-                            No matching property
-                          </div>
-                        )}
-
                         {matches.map((m: any) => (
-                          <div
-                            key={m.id}
-                            className="border rounded-lg p-2 bg-white"
-                          >
+                          <div key={m.id} className="border rounded-lg p-2 bg-white">
                             <div><b>Type:</b> {m.type}</div>
                             <div><b>Price:</b> ₹{m.price}</div>
-                            <div><b>Area:</b> {m.size}</div>
-                            <div><b>Location:</b> {m.address}</div>
 
-                            {/* ⭐ PROPERTY OPEN LINK */}
                             <Link
                               href={`/property/${m.id}`}
-                              className="inline-block mt-1 text-blue-600 underline text-xs"
+                              className="text-blue-600 underline text-xs"
                             >
                               Open Property →
                             </Link>
