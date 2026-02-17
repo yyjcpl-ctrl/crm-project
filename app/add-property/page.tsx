@@ -140,7 +140,7 @@ export default function AddPropertyPage() {
           </h1>
 
           {/* ROW 1 */}
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <input
               type="date"
               className={input}
@@ -148,55 +148,79 @@ export default function AddPropertyPage() {
               onChange={(e) => setVal("date", e.target.value)}
             />
 
-            <select
+            <input
+              list="propertyForList"
+              placeholder="Property For"
               className={input}
               value={form.propertyFor}
               onChange={(e) => setVal("propertyFor", e.target.value)}
-            >
-              <option value="">Property For</option>
-              <option value="Sale">Sale</option>
-              <option value="Rent">Rent</option>
-              <option value="Lease">Lease</option>
-            </select>
+            />
+            <datalist id="propertyForList">
+              <option value="Sale" />
+              <option value="Rent" />
+              <option value="Lease" />
+            </datalist>
 
-            <select
+            <input
+              list="typeList"
+              placeholder="Type"
               className={input}
               value={form.type}
               onChange={(e) => setVal("type", e.target.value)}
-            >
-              <option value="">Type</option>
-              <option value="Flat">Flat</option>
-              <option value="Villa">Villa</option>
-              <option value="Plot">Plot</option>
-              <option value="G+2">G+2</option>
-              <option value="G+3">G+3</option>
-            </select>
+            />
+            <datalist id="typeList">
+              <option value="Flat" />
+              <option value="Villa" />
+              <option value="Plot" />
+              <option value="G+2" />
+              <option value="G+3" />
+            </datalist>
           </div>
 
           {/* ROW 2 */}
-          <div className="grid md:grid-cols-3 gap-4 mt-4">
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
             <input
+              list="conditionList"
               placeholder="Condition"
               className={input}
               value={form.condition}
               onChange={(e) => setVal("condition", e.target.value)}
             />
+            <datalist id="conditionList">
+              <option value="New" />
+              <option value="Resale" />
+            </datalist>
+
             <input
+              list="bedroomList"
               placeholder="Bedroom"
               className={input}
               value={form.bedroom}
               onChange={(e) => setVal("bedroom", e.target.value)}
             />
+            <datalist id="bedroomList">
+              <option value="1" />
+              <option value="2" />
+              <option value="3" />
+              <option value="4" />
+            </datalist>
+
             <input
+              list="bathList"
               placeholder="Bath"
               className={input}
               value={form.bath}
               onChange={(e) => setVal("bath", e.target.value)}
             />
+            <datalist id="bathList">
+              <option value="1" />
+              <option value="2" />
+              <option value="3" />
+            </datalist>
           </div>
 
           {/* ROW 3 */}
-          <div className="grid md:grid-cols-3 gap-4 mt-4">
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
             <input
               placeholder="Size (sqft)"
               className={input}
@@ -204,11 +228,19 @@ export default function AddPropertyPage() {
               onChange={(e) => setVal("size", e.target.value)}
             />
             <input
+              list="facingList"
               placeholder="Facing"
               className={input}
               value={form.facing}
               onChange={(e) => setVal("facing", e.target.value)}
             />
+            <datalist id="facingList">
+              <option value="North" />
+              <option value="South" />
+              <option value="East" />
+              <option value="West" />
+            </datalist>
+
             <input
               placeholder="Total Floor"
               className={input}
@@ -218,7 +250,7 @@ export default function AddPropertyPage() {
           </div>
 
           {/* ROW 4 */}
-          <div className="grid md:grid-cols-3 gap-4 mt-4">
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
             <input
               placeholder="Floor No"
               className={input}
@@ -232,27 +264,41 @@ export default function AddPropertyPage() {
               onChange={(e) => setVal("road", e.target.value)}
             />
             <input
+              list="furnishList"
               placeholder="Furnished"
               className={input}
               value={form.furnished}
               onChange={(e) => setVal("furnished", e.target.value)}
             />
+            <datalist id="furnishList">
+              <option value="Full Furnished" />
+              <option value="Semi Furnished" />
+              <option value="Unfurnished" />
+            </datalist>
           </div>
 
           {/* ROW 5 */}
-          <div className="grid md:grid-cols-3 gap-4 mt-4">
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
             <input
+              list="parkingList"
               placeholder="Parking"
               className={input}
               value={form.parking}
               onChange={(e) => setVal("parking", e.target.value)}
             />
+            <datalist id="parkingList">
+              <option value="1" />
+              <option value="2" />
+              <option value="3" />
+            </datalist>
+
             <input
               placeholder="Contact Number"
               className={input}
               value={form.contact}
               onChange={(e) => setVal("contact", e.target.value)}
             />
+
             <input
               placeholder="Reference By"
               className={input}
