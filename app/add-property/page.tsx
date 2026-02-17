@@ -36,9 +36,9 @@ export default function AddPropertyPage() {
     setForm((p: any) => ({ ...p, [k]: v }));
 
   const input =
-    "w-full border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-3 rounded-xl outline-none transition bg-white";
+    "w-full h-[52px] border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 rounded-xl outline-none transition bg-white";
 
-  // ✅ AUTO DATE
+  // ✅ AUTO DATE (auto + manual allowed)
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     setForm((p: any) => ({ ...p, date: p.date || today }));
@@ -115,7 +115,7 @@ export default function AddPropertyPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 p-6">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <Link
           href="/dashboard"
           className="inline-block mb-4 bg-white/90 px-4 py-2 rounded-xl shadow hover:scale-105 transition"
@@ -123,40 +123,28 @@ export default function AddPropertyPage() {
           ← Dashboard
         </Link>
 
-        <div className="bg-white rounded-3xl p-6 shadow-2xl">
-          <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        <div className="bg-white rounded-3xl p-8 shadow-2xl">
+          <h1 className="text-3xl font-extrabold mb-6 text-gray-800">
             ➕ Add Property
           </h1>
 
           {/* ROW 1 */}
           <div className="grid md:grid-cols-2 gap-4">
-            <input
-              type="date"
-              className={input}
-              value={form.date}
-              onChange={(e) => setVal("date", e.target.value)}
-            />
+            <input type="date" className={input} value={form.date}
+              onChange={(e) => setVal("date", e.target.value)} />
 
-            <input
-              list="propertyForList"
-              placeholder="Property For"
-              className={input}
+            <input list="propertyForList" placeholder="Property For" className={input}
               value={form.propertyFor}
-              onChange={(e) => setVal("propertyFor", e.target.value)}
-            />
+              onChange={(e) => setVal("propertyFor", e.target.value)} />
             <datalist id="propertyForList">
               <option value="Sale" />
               <option value="Rent" />
               <option value="Lease" />
             </datalist>
 
-            <input
-              list="typeList"
-              placeholder="Type"
-              className={input}
+            <input list="typeList" placeholder="Type" className={input}
               value={form.type}
-              onChange={(e) => setVal("type", e.target.value)}
-            />
+              onChange={(e) => setVal("type", e.target.value)} />
             <datalist id="typeList">
               <option value="Flat" />
               <option value="Villa" />
@@ -165,136 +153,142 @@ export default function AddPropertyPage() {
               <option value="G+3" />
             </datalist>
 
-            <input
-              placeholder="Condition"
-              className={input}
+            <input list="conditionList" placeholder="Condition" className={input}
               value={form.condition}
-              onChange={(e) => setVal("condition", e.target.value)}
-            />
+              onChange={(e) => setVal("condition", e.target.value)} />
+            <datalist id="conditionList">
+              <option value="New" />
+              <option value="Resale" />
+            </datalist>
           </div>
 
           {/* ROW 2 */}
           <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <input
-              placeholder="Bedroom"
-              className={input}
+            <input list="bedroomList" placeholder="Bedroom" className={input}
               value={form.bedroom}
-              onChange={(e) => setVal("bedroom", e.target.value)}
-            />
-            <input
-              placeholder="Bath"
-              className={input}
-              value={form.bath}
-              onChange={(e) => setVal("bath", e.target.value)}
-            />
+              onChange={(e) => setVal("bedroom", e.target.value)} />
+            <datalist id="bedroomList">
+              <option value="1" />
+              <option value="2" />
+              <option value="3" />
+              <option value="4" />
+            </datalist>
 
-            <input
-              placeholder="Size (sqft)"
-              className={input}
+            <input list="bathList" placeholder="Bath" className={input}
+              value={form.bath}
+              onChange={(e) => setVal("bath", e.target.value)} />
+            <datalist id="bathList">
+              <option value="1" />
+              <option value="2" />
+              <option value="3" />
+            </datalist>
+
+            <input list="sizeList" placeholder="Size" className={input}
               value={form.size}
-              onChange={(e) => setVal("size", e.target.value)}
-            />
-            <input
-              placeholder="Facing"
-              className={input}
+              onChange={(e) => setVal("size", e.target.value)} />
+            <datalist id="sizeList">
+              <option value="50 Gaj" />
+              <option value="100 Gaj" />
+              <option value="150 Gaj" />
+            </datalist>
+
+            <input list="facingList" placeholder="Facing" className={input}
               value={form.facing}
-              onChange={(e) => setVal("facing", e.target.value)}
-            />
+              onChange={(e) => setVal("facing", e.target.value)} />
+            <datalist id="facingList">
+              <option value="North" />
+              <option value="South" />
+              <option value="East" />
+              <option value="West" />
+            </datalist>
           </div>
 
           {/* ROW 3 */}
           <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <input
-              placeholder="Total Floor"
-              className={input}
+            <input list="totalFloorList" placeholder="Total Floor" className={input}
               value={form.totalFloor}
-              onChange={(e) => setVal("totalFloor", e.target.value)}
-            />
-            <input
-              placeholder="Floor No"
-              className={input}
-              value={form.floorNo}
-              onChange={(e) => setVal("floorNo", e.target.value)}
-            />
+              onChange={(e) => setVal("totalFloor", e.target.value)} />
+            <datalist id="totalFloorList">
+              <option value="1" />
+              <option value="2" />
+              <option value="3" />
+            </datalist>
 
-            <input
-              placeholder="Road"
-              className={input}
+            <input list="floorNoList" placeholder="Floor No" className={input}
+              value={form.floorNo}
+              onChange={(e) => setVal("floorNo", e.target.value)} />
+            <datalist id="floorNoList">
+              <option value="Ground" />
+              <option value="1" />
+              <option value="2" />
+            </datalist>
+
+            <input list="roadList" placeholder="Road" className={input}
               value={form.road}
-              onChange={(e) => setVal("road", e.target.value)}
-            />
-            <input
-              placeholder="Furnished"
-              className={input}
+              onChange={(e) => setVal("road", e.target.value)} />
+            <datalist id="roadList">
+              <option value="20 ft" />
+              <option value="30 ft" />
+              <option value="40 ft" />
+            </datalist>
+
+            <input list="furnishList" placeholder="Furnished" className={input}
               value={form.furnished}
-              onChange={(e) => setVal("furnished", e.target.value)}
-            />
+              onChange={(e) => setVal("furnished", e.target.value)} />
+            <datalist id="furnishList">
+              <option value="Full Furnished" />
+              <option value="Semi Furnished" />
+              <option value="Unfurnished" />
+            </datalist>
           </div>
 
           {/* ROW 4 */}
           <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <input
-              placeholder="Parking"
-              className={input}
+            <input list="parkingList" placeholder="Parking" className={input}
               value={form.parking}
-              onChange={(e) => setVal("parking", e.target.value)}
-            />
-            <input
-              placeholder="Contact Number"
-              className={input}
-              value={form.contact}
-              onChange={(e) => setVal("contact", e.target.value)}
-            />
+              onChange={(e) => setVal("parking", e.target.value)} />
+            <datalist id="parkingList">
+              <option value="1" />
+              <option value="2" />
+              <option value="3" />
+            </datalist>
 
-            <input
-              placeholder="Reference By"
-              className={input}
+            <input placeholder="Contact" className={input}
+              value={form.contact}
+              onChange={(e) => setVal("contact", e.target.value)} />
+
+            <input placeholder="Reference By" className={input}
               value={form.referenceBy}
-              onChange={(e) => setVal("referenceBy", e.target.value)}
-            />
-            <input
-              placeholder="Project Name"
-              className={input}
+              onChange={(e) => setVal("referenceBy", e.target.value)} />
+
+            <input placeholder="Project Name" className={input}
               value={form.projectName}
-              onChange={(e) => setVal("projectName", e.target.value)}
-            />
+              onChange={(e) => setVal("projectName", e.target.value)} />
           </div>
 
           {/* ADDRESS */}
           <div className="mt-4">
-            <input
-              placeholder="Address"
-              className={input}
+            <input placeholder="Address" className={input}
               value={form.address}
-              onChange={(e) => setVal("address", e.target.value)}
-            />
+              onChange={(e) => setVal("address", e.target.value)} />
           </div>
 
           {/* PRICE */}
           <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <input
-              placeholder="Min Price ₹"
-              className={input}
+            <input placeholder="Min Price ₹" className={input}
               value={form.minPrice}
-              onChange={(e) =>
-                setVal("minPrice", formatPrice(e.target.value))
-              }
-            />
-            <input
-              placeholder="Max Price ₹"
-              className={input}
+              onChange={(e) => setVal("minPrice", formatPrice(e.target.value))} />
+
+            <input placeholder="Max Price ₹" className={input}
               value={form.maxPrice}
-              onChange={(e) =>
-                setVal("maxPrice", formatPrice(e.target.value))
-              }
-            />
+              onChange={(e) => setVal("maxPrice", formatPrice(e.target.value))} />
           </div>
 
           {/* ADDITIONAL */}
           <div className="mt-4">
             <textarea
               placeholder="Additional Details"
-              className={input}
+              className="w-full border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-3 rounded-xl outline-none transition bg-white"
               value={form.additional}
               onChange={(e) => setVal("additional", e.target.value)}
             />
@@ -303,21 +297,14 @@ export default function AddPropertyPage() {
           {/* FILE */}
           <div className="mt-4">
             <label className="font-semibold">Upload Photos</label>
-            <input
-              type="file"
-              multiple
-              className="w-full mt-2"
-              onChange={(e) => handleFiles(e.target.files)}
-            />
+            <input type="file" multiple className="w-full mt-2"
+              onChange={(e) => handleFiles(e.target.files)} />
 
             {preview.length > 0 && (
               <div className="grid grid-cols-4 gap-3 mt-3">
                 {preview.map((src, i) => (
-                  <img
-                    key={i}
-                    src={src}
-                    className="w-full h-24 object-cover rounded-lg"
-                  />
+                  <img key={i} src={src}
+                    className="w-full h-24 object-cover rounded-lg" />
                 ))}
               </div>
             )}
