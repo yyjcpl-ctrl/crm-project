@@ -2,25 +2,47 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [checked, setChecked] = useState(false);
+  const [role, setRole] = useState<string>("user"); // ⭐ role state
 
-  // 🔐 protect dashboard (stable)
+  // 🔐 protect dashboard + get role
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
 
-    if (isLoggedIn !== "true") {
-      window.location.href = "/login";
-    } else {
+      if (!data.session) {
+        router.replace("/login");
+        return;
+      }
+
+      // ✅ get user role
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (userData.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", userData.user.id)
+          .single();
+
+        setRole(profile?.role || "user");
+      }
+
       setChecked(true);
-    }
-  }, []);
+    };
+
+    checkAuth();
+  }, [router]);
 
   // 🔓 logout
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    window.location.href = "/login";
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace("/login");
   };
 
   // ⛔ loading screen
@@ -34,7 +56,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-
       {/* 🌌 MOVING GRADIENT BG */}
       <div className="absolute inset-0 animate-gradient bg-[linear-gradient(-45deg,#020617,#1e3a8a,#6d28d9,#0ea5e9)] bg-[length:400%_400%]" />
 
@@ -44,7 +65,6 @@ export default function DashboardPage() {
 
       {/* 🧊 MAIN CONTENT */}
       <div className="relative p-6 max-w-7xl mx-auto">
-
         {/* 🔝 HEADER */}
         <div className="backdrop-blur-xl bg-white/90 border border-white/40 rounded-3xl p-6 shadow-2xl flex justify-between items-center mb-6">
           <div>
@@ -108,6 +128,22 @@ export default function DashboardPage() {
               Save/Match client requirements
             </p>
           </Link>
+
+          {/* 👑 ADMIN PANEL (VISIBLE ONLY TO ADMIN) */}
+          {role === "admin" && (
+            <Link
+              href="/admin"
+              className="group backdrop-blur-xl bg-white/90 border border-white/40 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
+            >
+              <div className="text-4xl mb-3">👑</div>
+              <h3 className="text-xl font-bold text-gray-800 group-hover:text-red-600 transition">
+                Admin Panel
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Manage users & roles
+              </p>
+            </Link>
+          )}
 
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,30 +13,59 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
 
-  // 🔐 already logged in check
+  // 🔐 already logged in check (Supabase session)
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (isLoggedIn === "true") {
-      router.replace("/dashboard");
-    }
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        router.replace("/dashboard");
+      }
+    };
+    checkUser();
   }, [router]);
 
-  const handleLogin = () => {
-    if (username === "admin" && password === "1234") {
-      setLoading(true);
-      localStorage.setItem("isLoggedIn", "true");
+  const handleLogin = async () => {
+    if (!username || !password) {
+      alert("Enter email and password");
+      return;
+    }
 
-      setTimeout(() => {
-        router.replace("/dashboard");
-      }, 250);
-    } else {
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: username,
+      password: password,
+    });
+
+    if (error) {
       alert("❌ Invalid login");
+      setLoading(false);
+      return;
+    }
+
+    router.replace("/dashboard");
+  };
+
+  const handleSignup = async () => {
+    if (!username || !password) {
+      alert("Enter email and password");
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email: username,
+      password: password,
+    });
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("✅ Account created! Now login.");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-
       {/* 🌌 MOVING GRADIENT BACKGROUND */}
       <div className="absolute inset-0 animate-gradient bg-[linear-gradient(-45deg,#0f172a,#1e3a8a,#6d28d9,#0ea5e9)] bg-[length:400%_400%]" />
 
@@ -45,7 +75,6 @@ export default function LoginPage() {
 
       {/* 🔷 CARD */}
       <div className="relative w-[360px] backdrop-blur-xl bg-white/95 border border-white/40 p-8 rounded-3xl shadow-2xl">
-
         {/* 🏠 PERFECT ROUND LOGO */}
         <div className="flex justify-center mb-5">
           <div className="w-28 h-28 rounded-full border-4 border-blue-500 shadow-xl flex items-center justify-center bg-white overflow-hidden">
@@ -64,19 +93,19 @@ export default function LoginPage() {
           Resite CRM Login
         </h1>
 
-        {/* 👤 USERNAME */}
+        {/* 👤 EMAIL */}
         <input
-          className="w-full border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none p-3 rounded-xl mb-3 transition-all"
-          placeholder="Username"
+          className="w-full border border-gray-300 text-black placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none p-3 rounded-xl mb-3 transition-all"
+          placeholder="Email"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
 
-        {/* 🔐 PASSWORD WITH EYE */}
+        {/* 🔐 PASSWORD */}
         <div className="relative mb-5">
           <input
             type={showPass ? "text" : "password"}
-            className="w-full border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none p-3 rounded-xl pr-12 transition-all"
+            className="w-full border border-gray-300 text-black placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none p-3 rounded-xl pr-12 transition-all"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -91,7 +120,7 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* ✨ SHINING BUTTON */}
+        {/* 🔐 LOGIN */}
         <button
           type="button"
           disabled={loading}
@@ -101,9 +130,16 @@ export default function LoginPage() {
           <span className="relative z-10">
             🔐 {loading ? "Logging in..." : "Login"}
           </span>
-
-          {/* shine effect */}
           <span className="absolute inset-0 bg-white/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+        </button>
+
+        {/* 🆕 SIGNUP */}
+        <button
+          type="button"
+          onClick={handleSignup}
+          className="w-full mt-3 border border-gray-300 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-100 transition"
+        >
+          🆕 Create Account
         </button>
 
         <p className="text-center text-xs text-gray-500 mt-5">
@@ -111,7 +147,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* 🎬 gradient animation keyframes */}
+      {/* 🎬 gradient animation */}
       <style jsx global>{`
         @keyframes gradientMove {
           0% { background-position: 0% 50%; }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 export default function PropertiesPage() {
   const [list, setList] = useState<any[]>([]);
@@ -23,10 +24,30 @@ export default function PropertiesPage() {
   const setF = (k: string, v: string) =>
     setFilters((p) => ({ ...p, [k]: v }));
 
-  // ✅ load properties
+  // ✅ load properties from Supabase
   useEffect(() => {
-    const data = localStorage.getItem("properties");
-    setList(data ? JSON.parse(data) : []);
+    const loadProperties = async () => {
+      const { data, error } = await supabase
+        .from("properties")
+        .select("*")
+        .order("id", { ascending: false });
+
+      if (!error && data) {
+        // 🔁 map snake_case → camelCase (IMPORTANT)
+        const mapped = data.map((p: any) => ({
+          ...p,
+          propertyFor: p.property_for,
+          minPrice: p.min_price,
+          maxPrice: p.max_price,
+        }));
+
+        setList(mapped);
+      } else {
+        console.error("Properties load error:", error);
+      }
+    };
+
+    loadProperties();
   }, []);
 
   // 🧠 unique values
@@ -77,8 +98,9 @@ export default function PropertiesPage() {
     });
   }, [list, filters]);
 
+  // ✅ INPUT STYLE
   const input =
-    "w-full border border-white/30 bg-white/80 backdrop-blur p-2 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-400";
+    "w-full border border-white/30 bg-white/80 backdrop-blur p-2 rounded-lg text-sm text-black placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-400";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 p-6">
@@ -87,7 +109,7 @@ export default function PropertiesPage() {
         {/* 🔙 back */}
         <Link
           href="/dashboard"
-          className="inline-block mb-4 bg-white/90 hover:bg-white px-4 py-2 rounded-xl shadow transition"
+          className="inline-block mb-4 bg-white/90 hover:bg-white px-4 py-2 rounded-xl shadow transition text-black font-medium"
         >
           ← Dashboard
         </Link>
@@ -253,7 +275,7 @@ export default function PropertiesPage() {
 
         {/* 📋 TABLE */}
         <div className="overflow-auto rounded-2xl shadow-2xl bg-white">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm text-black">
             <tbody>
               {filtered.map((item, i) => {
                 const isMatch = checkMatch(item);
@@ -285,3 +307,4 @@ export default function PropertiesPage() {
     </div>
   );
 }
+

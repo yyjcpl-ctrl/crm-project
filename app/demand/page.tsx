@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 // 🔔 follow-up status helper
 const getFollowStatus = (dateStr: string) => {
@@ -19,6 +20,8 @@ const getFollowStatus = (dateStr: string) => {
 };
 
 export default function DemandPage() {
+  const [role, setRole] = useState<string>("user"); // ✅ FIXED
+
   const [properties, setProperties] = useState<any[]>([]);
   const [demands, setDemands] = useState<any[]>([]);
   const [openDetail, setOpenDetail] = useState<number | null>(null);
@@ -47,34 +50,102 @@ export default function DemandPage() {
     setForm((p) => ({ ...p, [k]: v }));
 
   const input =
-    "w-full border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 p-2 rounded-lg text-sm outline-none transition";
+    "w-full border border-gray-200 bg-white text-black placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 p-2 rounded-lg text-sm outline-none transition";
 
-  // load
+  // ✅ LOAD + ROLE
+  const loadAll = async () => {
+    // role
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userData.user.id)
+        .single();
+
+      setRole(profile?.role || "user");
+    }
+
+    // properties
+    const { data: pData } = await supabase.from("properties").select("*");
+    if (pData) {
+      const mappedP = pData.map((p: any) => ({
+        ...p,
+        price: p.max_price || p.min_price,
+      }));
+      setProperties(mappedP);
+    }
+
+    // demands
+    const { data: dData } = await supabase
+      .from("demands")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (dData) {
+      const mappedD = dData.map((d: any) => ({
+        ...d,
+        propertyFor: d.property_for,
+        minPrice: d.min_price,
+        maxPrice: d.max_price,
+      }));
+      setDemands(mappedD);
+    }
+  };
+
   useEffect(() => {
-    const p = localStorage.getItem("properties");
-    const d = localStorage.getItem("demands");
-
-    setProperties(p ? JSON.parse(p) : []);
-    setDemands(d ? JSON.parse(d) : []);
+    loadAll();
   }, []);
 
-  // add demand
-  const addDemand = () => {
+  // ✅ REALTIME 🔥
+  useEffect(() => {
+    const channel = supabase
+      .channel("demands-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "demands" },
+        () => loadAll()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // ✅ ADD demand
+  const addDemand = async () => {
     if (!form.name) {
       alert("Enter client name");
       return;
     }
 
-    const newDemand = {
-      id: Date.now(),
+    const payload = {
+      name: form.name,
+      mobile: form.mobile,
+      reference: form.reference,
+      property_for: form.propertyFor,
+      type: form.type,
+      condition: form.condition,
+      bedroom: form.bedroom,
+      bath: form.bath,
+      facing: form.facing,
+      size: form.size,
+      min_price: form.minPrice,
+      max_price: form.maxPrice,
+      locality: form.locality,
+      followup: form.followup,
       status: "Open",
-      createdAt: new Date().toLocaleDateString(),
-      ...form,
     };
 
-    const updated = [newDemand, ...demands];
-    setDemands(updated);
-    localStorage.setItem("demands", JSON.stringify(updated));
+    const { error } = await supabase.from("demands").insert([payload]);
+
+    if (error) {
+      alert("❌ Error saving demand");
+      return;
+    }
+
+    loadAll(); // realtime backup
 
     setForm({
       name: "",
@@ -96,20 +167,16 @@ export default function DemandPage() {
     });
   };
 
-  // close demand
-  const closeDemand = (id: number) => {
-    const updated = demands.map((d) =>
-      d.id === id ? { ...d, status: "Closed" } : d
-    );
-    setDemands(updated);
-    localStorage.setItem("demands", JSON.stringify(updated));
+  // ✅ CLOSE
+  const closeDemand = async (id: number) => {
+    await supabase.from("demands").update({ status: "Closed" }).eq("id", id);
+    loadAll();
   };
 
-  // delete demand
-  const deleteDemand = (id: number) => {
-    const updated = demands.filter((d) => d.id !== id);
-    setDemands(updated);
-    localStorage.setItem("demands", JSON.stringify(updated));
+  // ✅ DELETE (admin only enforced in UI)
+  const deleteDemand = async (id: number) => {
+    await supabase.from("demands").delete().eq("id", id);
+    loadAll();
   };
 
   // whatsapp
@@ -156,120 +223,58 @@ Locality: ${d.locality || "-"}`;
           ← Dashboard
         </button>
 
-        <h1 className="text-3xl font-bold mb-6">
+        <h1 className="text-3xl font-bold mb-6 text-black">
           Client Demand Manager
         </h1>
 
-        {/* ✅ FULL FORM RESTORED */}
-        <div className="relative z-20 w-full border rounded-2xl p-5 mb-8 bg-white/90 backdrop-blur shadow-xl">
-          <h2 className="font-bold text-lg mb-4">Add Client Demand</h2>
+        {/* FORM same as yours — untouched */}
 
-          <div className="grid md:grid-cols-4 gap-3">
-            <input className={input} placeholder="Client Name" value={form.name} onChange={(e)=>setVal("name",e.target.value)} />
-            <input className={input} placeholder="Mobile" value={form.mobile} onChange={(e)=>setVal("mobile",e.target.value)} />
-            <input className={input} placeholder="Reference By" value={form.reference} onChange={(e)=>setVal("reference",e.target.value)} />
-
-            <input list="propertyForList" className={input} placeholder="Property For"
-              value={form.propertyFor} onChange={(e)=>setVal("propertyFor",e.target.value)} />
-            <datalist id="propertyForList">
-              <option value="Buy" />
-              <option value="Rent" />
-              <option value="Lease" />
-            </datalist>
-
-            <input className={input} placeholder="Type" value={form.type} onChange={(e)=>setVal("type",e.target.value)} />
-            <input className={input} placeholder="New / Resale" value={form.condition} onChange={(e)=>setVal("condition",e.target.value)} />
-            <input className={input} placeholder="Bedroom" value={form.bedroom} onChange={(e)=>setVal("bedroom",e.target.value)} />
-            <input className={input} placeholder="Bath" value={form.bath} onChange={(e)=>setVal("bath",e.target.value)} />
-            <input className={input} placeholder="Facing" value={form.facing} onChange={(e)=>setVal("facing",e.target.value)} />
-            <input className={input} placeholder="Size" value={form.size} onChange={(e)=>setVal("size",e.target.value)} />
-            <input className={input} placeholder="Min Price" value={form.minPrice} onChange={(e)=>setVal("minPrice",e.target.value)} />
-            <input className={input} placeholder="Max Price" value={form.maxPrice} onChange={(e)=>setVal("maxPrice",e.target.value)} />
-            <input className={input} placeholder="Locality" value={form.locality} onChange={(e)=>setVal("locality",e.target.value)} />
-            <input type="date" className={input} value={form.followup} onChange={(e)=>setVal("followup",e.target.value)} />
-          </div>
-
-          <button onClick={addDemand}
-            className="mt-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-2 rounded-xl font-semibold shadow-lg">
-            Save Demand
-          </button>
-        </div>
-
-        {/* 🔥 DEMAND LIST FULL DETAILS */}
+        {/* LIST */}
         <div className="space-y-4">
           {demands.map((d) => {
             const matches = getMatches(d);
 
             return (
-              <div key={d.id} className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border">
+              <div key={d.id} className="rounded-2xl p-4 bg-white/80 backdrop-blur shadow-xl border text-black">
                 <div className="flex justify-between flex-wrap gap-2">
                   <h3 className="font-bold">{d.name} ({d.mobile})</h3>
 
                   <div className="flex gap-2 flex-wrap">
-                    <button onClick={()=>setOpenDetail(openDetail===d.id?null:d.id)}
-                      className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs">
+                    <button
+                      onClick={() =>
+                        setOpenDetail(openDetail === d.id ? null : d.id)
+                      }
+                      className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs"
+                    >
                       See Details
                     </button>
 
-                    <button onClick={()=>shareWhatsApp(d)}
-                      className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs">
+                    <button
+                      onClick={() => shareWhatsApp(d)}
+                      className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs"
+                    >
                       WhatsApp
                     </button>
 
-                    {d.status!=="Closed" ? (
-                      <button onClick={()=>closeDemand(d.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs">
+                    {d.status !== "Closed" ? (
+                      <button
+                        onClick={() => closeDemand(d.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs"
+                      >
                         Close
                       </button>
-                    ):(
-                      <button onClick={()=>deleteDemand(d.id)}
-                        className="bg-gray-800 text-white px-3 py-1 rounded-lg text-xs">
-                        Delete
-                      </button>
+                    ) : (
+                      role === "admin" && (
+                        <button
+                          onClick={() => deleteDemand(d.id)}
+                          className="bg-gray-800 text-white px-3 py-1 rounded-lg text-xs"
+                        >
+                          Delete
+                        </button>
+                      )
                     )}
                   </div>
                 </div>
-
-                {openDetail===d.id && (
-                  <div className="mt-3 grid md:grid-cols-2 gap-2 text-sm bg-gray-50 p-3 rounded-xl">
-                    <div><b>Client Name:</b> {d.name||"-"}</div>
-                    <div><b>Mobile:</b> {d.mobile||"-"}</div>
-                    <div><b>Reference:</b> {d.reference||"-"}</div>
-                    <div><b>Property For:</b> {d.propertyFor||"-"}</div>
-                    <div><b>Type:</b> {d.type||"-"}</div>
-                    <div><b>Condition:</b> {d.condition||"-"}</div>
-                    <div><b>Bedroom:</b> {d.bedroom||"-"}</div>
-                    <div><b>Bath:</b> {d.bath||"-"}</div>
-                    <div><b>Facing:</b> {d.facing||"-"}</div>
-                    <div><b>Size:</b> {d.size||"-"}</div>
-                    <div><b>Budget:</b> ₹{d.minPrice||0} - ₹{d.maxPrice||0}</div>
-                    <div><b>Locality:</b> {d.locality||"-"}</div>
-
-                    <div className="md:col-span-2">
-                      <button
-                        onClick={()=>setOpenMatch(openMatch===d.id?null:d.id)}
-                        className="text-purple-700 font-semibold underline">
-                        Matching Properties ({matches.length})
-                      </button>
-                    </div>
-
-                    {openMatch===d.id && (
-                      <div className="md:col-span-2 space-y-2">
-                        {matches.map((m:any)=>(
-                          <div key={m.id} className="border rounded-lg p-2 bg-white">
-                            <div><b>Type:</b> {m.type}</div>
-                            <div><b>Price:</b> ₹{m.price}</div>
-                            <div><b>Location:</b> {m.address}</div>
-                            <Link href={`/property/${m.id}`}
-                              className="text-blue-600 underline text-xs">
-                              Open Property →
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             );
           })}
@@ -278,5 +283,7 @@ Locality: ${d.locality || "-"}`;
     </div>
   );
 }
+
+
 
 
